@@ -1,0 +1,17 @@
+{
+  "name": "noise",
+  "id": "1273932591949435633",
+  "api": "1.0.0",
+  "main": "code.js",
+  "capabilities": [],
+  "enableProposedApi": false,
+  "editorType": [
+    "figma"
+  ],
+  "ui": "ui.html",
+  "networkAccess": {
+    "allowedDomains": [
+      "https://blood-cells-atlas-borshhevskijj.vercel.app/"
+    ]
+  }
+}

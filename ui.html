@@ -1,0 +1,307 @@
+<!-- <link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin /> -->
+<!-- <link href="https://fonts.googleapis.com/css2?family=Raleway&display=swap" rel="stylesheet" /> -->
+
+<div id="canvasContainer">
+  <canvas id="exampleNoise"></canvas>
+</div>
+<form id="form">
+  <div style="align-items: baseline">
+    <label for="choosenColor"><span>color</span></label>
+    <div>
+      <input type="color" id="choosenColor" name="drone" />
+      <input type="text" class="outline" id="colorInput" />
+    </div>
+  </div>
+
+  <div>
+    <label for="noiseAmount">amount</label>
+    <input id="noiseAmount" type="range" min="0.1" max="1" step="0.01" value="0.5" />
+  </div>
+
+  <div>
+    <label for="imageOpacity"><span>opacity</span></label>
+    <input id="imageOpacity" type="range" min="0" max="1" step="0.01" value="0.7" />
+  </div>
+
+  <div>
+    <label for="mixBlendMode"><span>blend mode</span></label>
+    <select name="mixBlendMode" class="outline" id="mixBlendMode">
+      <option selected value="NORMAL">NORMAL</option>
+      <option value="COLOR">COLOR</option>
+      <option value="COLOR_BURN">COLOR BURN</option>
+      <option value="COLOR_DODGE">COLOR DODGE</option>
+      <option value="DARKEN">DARKEN</option>
+      <option value="DIFFERENCE">DIFFERENCE</option>
+      <option value="EXCLUSION">EXCLUSION</option>
+      <option value="HARD_LIGHT">HARD LIGHT</option>
+      <option value="HUE">HUE</option>
+      <option value="LIGHTEN">LIGHTEN</option>
+      <option value="LINEAR_BURN">LINEAR BURN</option>
+      <option value="LINEAR_DODGE">LINEAR DODGE</option>
+      <option value="LUMINOSITY">LUMINOSITY</option>
+      <option value="MULTIPLY">MULTIPLY</option>
+      <option value="OVERLAY">OVERLAY</option>
+      <option value="PASS_THROUGH">PASS THROUGH</option>
+      <option value="SATURATION">SATURATION</option>
+      <option value="SCREEN">SCREEN</option>
+      <option value="SOFT_LIGHT">SOFTLIGHT</option>
+    </select>
+  </div>
+  <input id="submit" class="outline" type="submit" value="submit" />
+</form>
+
+<style>
+  :root {
+    --main_color: #ffffffb3;
+    --secondary: #ffffff;
+    --bgColor: #2c2c2c;
+  }
+
+  body {
+    background-color: var(--bgColor);
+    color: var(--main_color);
+    font-family: "Inter", sans-serif;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+  }
+  :active,
+  :hover,
+  :focus {
+    outline: 0;
+    outline-offset: 0;
+  }
+
+  .outline {
+    font-size: 12px;
+    text-transform: lowercase;
+    background-color: var(--bgColor);
+    color: var(--main_color);
+    padding: 5px;
+    border: 1px solid var(--main_color);
+    border-radius: 4.5px;
+  }
+
+  input[type="text"] {
+    width: 98px;
+  }
+  select {
+    width: 129px;
+  }
+  input[type="submit"] {
+    width: auto;
+    margin-top: 25px;
+    padding: 5px 15px;
+    text-transform: uppercase;
+  }
+
+  #canvasContainer,
+  canvas {
+    width: 100%;
+    height: 150px;
+  }
+  #canvasContainer {
+    background: var(--secondary);
+  }
+
+  #form {
+    margin: 0 25px;
+  }
+  #form label {
+    margin-right: 15px;
+    font-size: 14px;
+    text-transform: capitalize;
+  }
+  #form > div:hover *,
+  input[type="submit"]:hover {
+    color: var(--secondary);
+    border-color: var(--secondary);
+    transition: all 0.2s linear;
+  }
+  #form > *:not(:last-child) {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 8px;
+    padding-bottom: 10px;
+  }
+  #form label:has(span) {
+    display: flex;
+    align-items: center;
+  }
+
+  input[type="color"] {
+    background-color: transparent;
+    width: 30px;
+    height: 30px;
+    border: 0;
+    position: relative;
+    top: 5px;
+  }
+
+  input[type="range"] {
+    accent-color: var(--main_color);
+    border-radius: 5px;
+    height: 1px;
+    position: relative;
+    top: 6px;
+  }
+</style>
+
+<script>
+  const form = document.getElementById("form");
+  const mixBlendMode = form.querySelector("#mixBlendMode");
+  const choosenColor = form.querySelector("#choosenColor");
+
+  const imageOpacity = form.querySelector("#imageOpacity");
+  let opacityValue = imageOpacity.value;
+
+  const noiseAmount = form.querySelector("#noiseAmount");
+  let noiseAmountValue = noiseAmount.value;
+
+  const colorInput = document.querySelector("#colorInput");
+
+  const canvasContainer = document.querySelector("#canvasContainer");
+  const canvas = document.querySelector("#exampleNoise");
+  const ctx = canvas.getContext("2d");
+
+  const figmaValueToCss = (value = "") => {
+    return value.toLowerCase().replace("_", "-");
+  };
+
+  let rgbColor = {
+    red: 0,
+    green: 0,
+    blue: 0,
+  };
+  const idata = setImageData(canvas, ctx);
+
+  function changeOpacity() {
+    const imageOpacityValue = imageOpacity.value;
+    opacityValue = imageOpacityValue;
+    for (let i = 0; i < idata.data.length; i += 4) {
+      idata.data[i + 3] = imageOpacityValue * 255;
+    }
+    ctx.putImageData(idata, 0, 0);
+  }
+  function changeBlend() {
+    const blendValue = figmaValueToCss(mixBlendMode.value);
+    canvas.style.mixBlendMode = blendValue;
+  }
+
+  function changeColor() {
+    const color = choosenColor.value.replace("#", "");
+    const red = parseInt(color.substring(0, 2), 16);
+    const green = parseInt(color.substring(2, 4), 16);
+    const blue = parseInt(color.substring(4, 6), 16);
+
+    const alphaChannel = false;
+
+    rgbColor.red = red;
+    rgbColor.green = green;
+    rgbColor.blue = blue;
+
+    colorInput.value = choosenColor.value;
+
+    setImageDataData(idata, rgbColor, noiseAmountValue, alphaChannel);
+    ctx.putImageData(idata, 0, 0);
+  }
+  function changeNoiseAmount() {
+    const changedNoiseAmountValue = noiseAmount.value;
+    noiseAmountValue = changedNoiseAmountValue;
+    const alphaChannel = false;
+
+    setImageDataData(idata, rgbColor, changedNoiseAmountValue, alphaChannel);
+    ctx.putImageData(idata, 0, 0);
+  }
+  function updateColorValueAndChangeColor() {
+    const color = colorInput.value;
+    if (/^#[0-9A-F]{6}$/i.test(color)) {
+      choosenColor.value = color;
+      changeColor();
+    }
+  }
+
+  colorInput.addEventListener("input", () => updateColorValueAndChangeColor());
+  choosenColor.addEventListener("input", () => changeColor());
+  noiseAmount.addEventListener("input", () => changeNoiseAmount());
+  imageOpacity.addEventListener("input", () => changeOpacity());
+  mixBlendMode.addEventListener("change", () => changeBlend());
+
+  changeColor();
+  updateColorValueAndChangeColor();
+  changeNoiseAmount();
+  changeOpacity();
+  changeBlend();
+
+  function setImageData(canvas, ctx, alphaChannel = false) {
+    const imageData = ctx.createImageData(canvas.width, canvas.height);
+    setImageDataData(imageData, rgbColor, noiseAmountValue, alphaChannel);
+    return imageData;
+  }
+  function setImageDataData(imageData, value, noiseAmountValue, alphaChannel) {
+    const { red, green, blue } = value;
+    const CHANNELS = 4; // [R,G,B,A..]
+    const randomValue = () => Math.random();
+    for (let i = 0; i < imageData.data.length; i += CHANNELS) {
+      if (randomValue() >= noiseAmountValue) {
+        imageData.data[i + 0] = 255;
+        imageData.data[i + 1] = 255;
+        imageData.data[i + 2] = 255;
+      } else {
+        imageData.data[i + 0] = red;
+        imageData.data[i + 1] = green;
+        imageData.data[i + 2] = blue;
+      }
+      if (alphaChannel) {
+        imageData.data[i + 3] = imageOpacity.value * 255;
+      }
+    }
+  }
+
+  onmessage = async (message) => {
+    const { width, height, background } = message.data.pluginMessage;
+
+    canvasContainer.style.background = background ?? "initial";
+
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = width;
+    canvas.height = height;
+
+    document.querySelector("#submit").addEventListener("click", async (e) => {
+      e.preventDefault();
+      const alphaChannel = true;
+      const imageData = setImageData(canvas, ctx, alphaChannel);
+
+      const pngBlob = await new Promise((resolve) => {
+        ctx.putImageData(imageData, 0, 0);
+        canvas.toBlob((blob) => {
+          resolve(blob);
+        }, "image/png");
+      });
+
+      const pngBytes = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          resolve(new Uint8Array(reader.result));
+        };
+        reader.onerror = (error) => {
+          reject(new Error(`FileReader error: ${reader.error.name} - ${reader.error.message}`));
+        };
+        reader.readAsArrayBuffer(pngBlob);
+      });
+      window.parent.postMessage(
+        {
+          pluginMessage: {
+            pngBytes,
+            imageOpacity: imageOpacity.value,
+            mixBlendMode: mixBlendMode.value,
+          },
+        },
+        "*"
+      );
+      // });
+    });
+  };
+</script>
