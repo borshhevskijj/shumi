@@ -1,5 +1,7 @@
 # SHUMI
 
+<img src="./shumiImg/shumi_zoom_0.png" alt="dogs">
+
 ## This plugin for Figma allows you to easily add noise textures to elements of your designs.
 
 ### Features
@@ -10,6 +12,5 @@
 - Group a textured element for easy further editing.
 - Export textures in PNG format for use in other projects.
 
-![dogs](./shumiImg/shumi_zoom_0.png)
-![dogs](./shumiImg/shumi_zoom_1.png)
-![dogs](./shumiImg/shumi_zoom_2.png)
+Questions and suggestions in <a href="https://www.linkedin.com/in/borschevsky">Questions and suggestions in linkedIn</a>
+<img src="./shumiImg/shumi_zoom_2.png" alt="dogs">
