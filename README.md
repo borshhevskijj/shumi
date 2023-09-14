@@ -10,6 +10,6 @@
 - Group a textured element for easy further editing.
 - Export textures in PNG format for use in other projects.
 
-(../shumiImg/shumi_zoom_0.png)
-(../shumiImg/shumi_zoom_1.png)
-(../shumiImg/shumi_zoom_2.png)
+![dogs](../shumiImg/shumi_zoom_0.png)
+![dogs](../shumiImg/shumi_zoom_1.png)
+![dogs](../shumiImg/shumi_zoom_2.png)
