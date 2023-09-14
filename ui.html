@@ -48,7 +48,7 @@
       <option value="SOFT_LIGHT">SOFTLIGHT</option>
     </select>
   </div>
-  <input id="submit" class="outline" type="submit" value="submit" />
+  <input id="submit" class="outline" type="submit" value="apply" />
 </form>
 
 <style>
@@ -102,7 +102,8 @@
     height: 150px;
   }
   #canvasContainer {
-    background: var(--secondary);
+    /* background: var(--secondary); */
+    background: var(--bgColor);
   }
 
   #form {
@@ -152,7 +153,6 @@
   const form = document.getElementById("form");
   const mixBlendMode = form.querySelector("#mixBlendMode");
   const choosenColor = form.querySelector("#choosenColor");
-
   const imageOpacity = form.querySelector("#imageOpacity");
   let opacityValue = imageOpacity.value;
 
@@ -165,7 +165,7 @@
   const canvas = document.querySelector("#exampleNoise");
   const ctx = canvas.getContext("2d");
 
-  const figmaValueToCss = (value = "") => {
+  const figmaBlendModeValueToCss = (value) => {
     return value.toLowerCase().replace("_", "-");
   };
 
@@ -174,7 +174,7 @@
     green: 0,
     blue: 0,
   };
-  const idata = setImageData(canvas, ctx);
+  const idata = setImageData(canvas.width, canvas.height, ctx);
 
   function changeOpacity() {
     const imageOpacityValue = imageOpacity.value;
@@ -184,8 +184,9 @@
     }
     ctx.putImageData(idata, 0, 0);
   }
+
   function changeBlend() {
-    const blendValue = figmaValueToCss(mixBlendMode.value);
+    const blendValue = figmaBlendModeValueToCss(mixBlendMode.value);
     canvas.style.mixBlendMode = blendValue;
   }
 
@@ -206,6 +207,7 @@
     setImageDataData(idata, rgbColor, noiseAmountValue, alphaChannel);
     ctx.putImageData(idata, 0, 0);
   }
+
   function changeNoiseAmount() {
     const changedNoiseAmountValue = noiseAmount.value;
     noiseAmountValue = changedNoiseAmountValue;
@@ -214,6 +216,7 @@
     setImageDataData(idata, rgbColor, changedNoiseAmountValue, alphaChannel);
     ctx.putImageData(idata, 0, 0);
   }
+
   function updateColorValueAndChangeColor() {
     const color = colorInput.value;
     if (/^#[0-9A-F]{6}$/i.test(color)) {
@@ -234,17 +237,16 @@
   changeOpacity();
   changeBlend();
 
-  function setImageData(canvas, ctx, alphaChannel = false) {
-    const imageData = ctx.createImageData(canvas.width, canvas.height);
+  function setImageData(w, h, ctx, alphaChannel = false) {
+    const imageData = ctx.createImageData(w, h);
     setImageDataData(imageData, rgbColor, noiseAmountValue, alphaChannel);
     return imageData;
   }
   function setImageDataData(imageData, value, noiseAmountValue, alphaChannel) {
     const { red, green, blue } = value;
     const CHANNELS = 4; // [R,G,B,A..]
-    const randomValue = () => Math.random();
     for (let i = 0; i < imageData.data.length; i += CHANNELS) {
-      if (randomValue() >= noiseAmountValue) {
+      if (Math.random() >= noiseAmountValue) {
         imageData.data[i + 0] = 255;
         imageData.data[i + 1] = 255;
         imageData.data[i + 2] = 255;
@@ -259,20 +261,35 @@
     }
   }
 
+  const changeSize = (canvas, width, height) => {
+    const MAX_SAFE_SIZE = 4096;
+    const MIN_SIZE = 250;
+    const SCALE_FACTOR = 2.6;
+
+    const average = width + height / 2;
+    const size = average > MIN_SIZE ? average : MIN_SIZE;
+    const newSize = size * SCALE_FACTOR;
+
+    if (newSize > MAX_SAFE_SIZE) {
+      canvas.width = MAX_SAFE_SIZE;
+      canvas.height = MAX_SAFE_SIZE;
+    } else {
+      canvas.width = newSize;
+      canvas.height = newSize;
+    }
+  };
+
   onmessage = async (message) => {
-    const { width, height, background } = message.data.pluginMessage;
-
-    canvasContainer.style.background = background ?? "initial";
-
+    const { width, height } = message.data.pluginMessage;
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
-    canvas.width = width;
-    canvas.height = height;
 
     document.querySelector("#submit").addEventListener("click", async (e) => {
       e.preventDefault();
+      changeSize(canvas, width, height);
+
       const alphaChannel = true;
-      const imageData = setImageData(canvas, ctx, alphaChannel);
+      const imageData = setImageData(canvas.width, canvas.height, ctx, alphaChannel);
 
       const pngBlob = await new Promise((resolve) => {
         ctx.putImageData(imageData, 0, 0);
@@ -301,7 +318,6 @@
         },
         "*"
       );
-      // });
     });
   };
 </script>
