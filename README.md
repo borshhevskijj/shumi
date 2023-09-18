@@ -16,4 +16,4 @@
 
 Questions and suggestions in <a href="https://www.linkedin.com/in/borschevsky">linkedIn</a>
 
-<img src="./shumiImg/shumi_zoom_2.png" alt="dogs">
+<img src="./shumiImg/shumiPeview.png" alt="preview">
