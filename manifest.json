@@ -11,7 +11,7 @@
   "ui": "ui.html",
   "networkAccess": {
     "allowedDomains": [
-      "https://blood-cells-atlas-borshhevskijj.vercel.app/"
+      "none"
     ]
   }
 }
