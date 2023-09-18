@@ -1,4 +1,4 @@
-# SHUMI
+# SHUMI <img src="./shumiImg/shumi_icon01.svg" width= '120px' height= '120px' alt="icon">
 
 <img src="./shumiImg/shumi_coverArt.png" alt="cover art">
 
@@ -15,4 +15,5 @@
 - Ability to export textures.
 
 Questions and suggestions in <a href="https://www.linkedin.com/in/borschevsky">linkedIn</a>
+
 <img src="./shumiImg/shumi_zoom_2.png" alt="dogs">
