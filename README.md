@@ -1,4 +1,4 @@
-# SHUMI <img src="./shumiImg/shumi_icon01.svg" width= '120px' height= '120px' alt="icon">
+# SHUMI <img src="./shumiImg/shumi_icon01.svg" alt="icon">
 
 <img src="./shumiImg/shumi_coverArt.png" alt="cover art">
 
