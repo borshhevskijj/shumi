@@ -1,4 +1,4 @@
-  figma.showUI(__html__,{width:300,height:405})
+  figma.showUI(__html__,{width:300,height:450})
 
   const nodes = figma.currentPage.selection;
 
@@ -12,6 +12,9 @@ const isValidImageSize=(width:number,height:number)=> {
   return width <= MAX_SAFE_SIZE && height <= MAX_SAFE_SIZE;
 }
 
+
+
+
 const createNodeOfType = (node:SceneNode) => {
   const {width,height,x,y,type} = node
   let createdNode; 
@@ -22,8 +25,22 @@ const createNodeOfType = (node:SceneNode) => {
     if ('pointCount' in node) {
       createdNode.pointCount = node.pointCount;
     }
-  } else {
+  }
+  else if ( type === 'VECTOR'){
+    createdNode = figma.createVector()
+    createdNode = node.clone()
+  }
+  else if ( type === 'TEXT'){
+    createdNode = figma.createText()
+    createdNode = node.clone()
+  }
+  else {
     createdNode = figma.createRectangle();
+  }
+  if ('cornerRadius' in node &&
+   node.cornerRadius &&
+    createdNode.type !== 'TEXT') {
+      createdNode.cornerRadius = node.cornerRadius;
   }
 
   createdNode.name = 'noiseEffect';
@@ -31,11 +48,9 @@ const createNodeOfType = (node:SceneNode) => {
   createdNode.y = y;
   createdNode.resize(width, height);
 
-  if ('cornerRadius' in node && node.cornerRadius) {
-    createdNode.cornerRadius = node.cornerRadius;
-  }
   return createdNode;
 };
+
     for(const node of nodes){
       const {width,height} = node
       if (!isValidImageSize(width,height)) {
@@ -47,26 +62,30 @@ const createNodeOfType = (node:SceneNode) => {
     }
 
 figma.ui.onmessage = async (message) => {
-  const {pngBytes,imageOpacity,mixBlendMode}= message
+  const {pngBytes,mixBlendMode}= message
       try {
         for(const node of nodes){
       const image= figma.createImage(pngBytes)
-
+          
       const element = createNodeOfType(node)
+      
       element.fills = [
         {
           type: 'IMAGE',
           imageHash: image.hash,
           scaleMode: 'FILL',
           blendMode:mixBlendMode,
-          opacity: Number(imageOpacity),
+          // opacity: Number(imageOpacity),
         }
       ]
       element.resize(node.width,node.height)
-    const parent = node.parent || figma.currentPage
-    const group = figma.group([node,element], parent)
-    group.name = `${node.name}_${element.name}`
-
+      
+      const parent = node.parent || figma.currentPage
+      parent.appendChild(element)
+    
+      const group = figma.group([node,element], parent)
+      group.name = `${node.name}_${element.name}`
+      
     }
     figma.closePlugin()
   } catch (error:any) {

@@ -23,6 +23,10 @@
     <label for="imageOpacity"><span>opacity</span></label>
     <input id="imageOpacity" type="range" min="0" max="1" step="0.01" value="0.7" />
   </div>
+  <div>
+    <label for="scaleFactor"><span>scale factor</span></label>
+    <input id="scaleFactor" type="range" min="0.1" max="4" step="0.01" value="2.5" />
+  </div>
 
   <div>
     <label for="mixBlendMode"><span>blend mode</span></label>
@@ -103,7 +107,7 @@
   }
   #canvasContainer {
     /* background: var(--secondary); */
-    background: var(--bgColor);
+    background: var(--main_color);
   }
 
   #form {
@@ -174,14 +178,24 @@
     green: 0,
     blue: 0,
   };
+  // const isTransparentPixel = () => Math.random() >= noiseAmountValue;
+
   const idata = setImageData(canvas.width, canvas.height, ctx);
 
   function changeOpacity() {
     const imageOpacityValue = imageOpacity.value;
     opacityValue = imageOpacityValue;
-    for (let i = 0; i < idata.data.length; i += 4) {
-      idata.data[i + 3] = imageOpacityValue * 255;
-    }
+
+    // for (let i = 0; i < idata.data.length; i += 4) {
+    //   if (Math.random() >= noiseAmountValue) {
+    //     idata.data[i + 3] = 0;
+    //   } else {
+    //     idata.data[i + 3] = imageOpacityValue * 255;
+    //   }
+    // }
+
+    setImageDataData(idata, rgbColor);
+
     ctx.putImageData(idata, 0, 0);
   }
 
@@ -196,24 +210,21 @@
     const green = parseInt(color.substring(2, 4), 16);
     const blue = parseInt(color.substring(4, 6), 16);
 
-    const alphaChannel = false;
-
     rgbColor.red = red;
     rgbColor.green = green;
     rgbColor.blue = blue;
 
     colorInput.value = choosenColor.value;
 
-    setImageDataData(idata, rgbColor, noiseAmountValue, alphaChannel);
+    setImageDataData(idata, rgbColor);
     ctx.putImageData(idata, 0, 0);
   }
 
   function changeNoiseAmount() {
     const changedNoiseAmountValue = noiseAmount.value;
     noiseAmountValue = changedNoiseAmountValue;
-    const alphaChannel = false;
 
-    setImageDataData(idata, rgbColor, changedNoiseAmountValue, alphaChannel);
+    setImageDataData(idata, rgbColor);
     ctx.putImageData(idata, 0, 0);
   }
 
@@ -237,38 +248,38 @@
   changeOpacity();
   changeBlend();
 
-  function setImageData(w, h, ctx, alphaChannel = false) {
+  function setImageData(w, h, ctx) {
     const imageData = ctx.createImageData(w, h);
-    setImageDataData(imageData, rgbColor, noiseAmountValue, alphaChannel);
+    setImageDataData(imageData, rgbColor);
     return imageData;
   }
-  function setImageDataData(imageData, value, noiseAmountValue, alphaChannel) {
-    const { red, green, blue } = value;
+  function setImageDataData(imageData, colors) {
+    const { red, green, blue } = colors;
     const CHANNELS = 4; // [R,G,B,A..]
     for (let i = 0; i < imageData.data.length; i += CHANNELS) {
-      if (Math.random() >= noiseAmountValue) {
+      const isTransparentPixel = Math.random() >= noiseAmountValue;
+      if (isTransparentPixel) {
         imageData.data[i + 0] = 255;
         imageData.data[i + 1] = 255;
         imageData.data[i + 2] = 255;
+        imageData.data[i + 3] = 0;
       } else {
         imageData.data[i + 0] = red;
         imageData.data[i + 1] = green;
         imageData.data[i + 2] = blue;
-      }
-      if (alphaChannel) {
         imageData.data[i + 3] = imageOpacity.value * 255;
       }
     }
   }
 
-  const changeSize = (canvas, width, height) => {
+  const changeSize = (canvas, width, height, scaleFactor) => {
     const MAX_SAFE_SIZE = 4096;
     const MIN_SIZE = 250;
-    const SCALE_FACTOR = 2.6;
+    // const SCALE_FACTOR = 1.5;
 
     const average = width + height / 2;
     const size = average > MIN_SIZE ? average : MIN_SIZE;
-    const newSize = size * SCALE_FACTOR;
+    const newSize = size * scaleFactor;
 
     if (newSize > MAX_SAFE_SIZE) {
       canvas.width = MAX_SAFE_SIZE;
@@ -286,10 +297,10 @@
 
     document.querySelector("#submit").addEventListener("click", async (e) => {
       e.preventDefault();
-      changeSize(canvas, width, height);
+      const scaleFactor = form.querySelector("#scaleFactor").value;
+      changeSize(canvas, width, height, Number(scaleFactor));
 
-      const alphaChannel = true;
-      const imageData = setImageData(canvas.width, canvas.height, ctx, alphaChannel);
+      const imageData = setImageData(canvas.width, canvas.height, ctx);
 
       const pngBlob = await new Promise((resolve) => {
         ctx.putImageData(imageData, 0, 0);
