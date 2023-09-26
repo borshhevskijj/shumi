@@ -65,19 +65,18 @@ figma.ui.onmessage = async (message) => {
   const {pngBytes,mixBlendMode}= message
       try {
         for(const node of nodes){
-      const image= figma.createImage(pngBytes)
-          
-      const element = createNodeOfType(node)
-      
-      element.fills = [
-        {
-          type: 'IMAGE',
-          imageHash: image.hash,
-          scaleMode: 'FILL',
-          blendMode:mixBlendMode,
-          // opacity: Number(imageOpacity),
-        }
-      ]
+          const image= figma.createImage(pngBytes)
+
+          const element = createNodeOfType(node)
+
+          element.fills = [
+            {
+              type: 'IMAGE',
+              imageHash: image.hash,
+              scaleMode: 'FILL',
+              blendMode:mixBlendMode,
+            }
+          ]
       element.resize(node.width,node.height)
       
       const parent = node.parent || figma.currentPage
