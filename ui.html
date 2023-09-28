@@ -25,23 +25,7 @@
   </div>
   <div>
     <label for="scaleFactor"><span>scale factor</span></label>
-    <input id="scaleFactor" type="range" min="0" max="12" step="1" />
-
-    <!-- <datalist id="steps">
-      <option value="0"></option>
-      <option value="1"></option>
-      <option value="2"></option>
-      <option value="3"></option>
-      <option value="4"></option>
-      <option value="5"></option>
-      <option value="6"></option>
-      <option value="7"></option>
-      <option value="8"></option>
-      <option value="9"></option>
-      <option value="10"></option>
-      <option value="11"></option>
-      <option value="12"></option>
-    </datalist> -->
+    <input id="scaleFactor" type="range" min="0" max="12" value="2" step="1" />
   </div>
 
   <div>
@@ -68,10 +52,19 @@
       <option value="SOFT_LIGHT">SOFTLIGHT</option>
     </select>
   </div>
-  <input id="submit" class="outline" type="submit" value="apply" />
+  <div>
+    <input id="submit" class="outline" type="submit" value="apply" />
+  </div>
 </form>
 
 <style>
+  .loader {
+    display: none;
+  }
+  .loaded {
+    display: block;
+  }
+
   :root {
     --main_color: #ffffffb3;
     --secondary: #ffffff;
@@ -120,11 +113,8 @@
   canvas {
     width: 100%;
     height: 150px;
-    /* min-width: 100%;
-    min-height: 150px; */
   }
   #canvasContainer {
-    /* background: var(--secondary); */
     background: var(--main_color);
   }
 
@@ -173,8 +163,11 @@
 
 <script>
   const form = document.getElementById("form");
+  const submitBtn = document.querySelector("#submit");
+
   const mixBlendMode = form.querySelector("#mixBlendMode");
   const choosenColor = form.querySelector("#choosenColor");
+  const colorInput = form.querySelector("#colorInput");
   const imageOpacity = form.querySelector("#imageOpacity");
   let opacityValue = imageOpacity.value;
 
@@ -183,10 +176,7 @@
 
   const scaleFactor = form.querySelector("#scaleFactor");
   let scaleFactorValue = +scaleFactor.value;
-
   const scaleFactorValues = [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 2, 3, 4, 5, 6];
-
-  const colorInput = form.querySelector("#colorInput");
 
   const canvasContainer = document.querySelector("#canvasContainer");
   let canvas = document.querySelector("#exampleNoise");
@@ -273,13 +263,10 @@
     }
 
     scaleFactorValue = newSFvalue;
-
     const imageData = setImageData(canvas.width, canvas.height, ctx, blockSize);
     idata = imageData;
     ctx.putImageData(imageData, 0, 0);
   }
-
-  // -------------------
 
   function debounce(callback, delay) {
     let timeout;
@@ -342,6 +329,24 @@
     }
   }
 
+  // const changeSize = (canvas, width, height, scaleFactor) => {
+  //   const MAX_SAFE_SIZE = 4096;
+  //   const MIN_SIZE = 250;
+  //   const calculateSizes = (size) => (size > MIN_SIZE ? size : MIN_SIZE);
+
+  //   const newWidth = calculateSizes(width) / scaleFactor;
+  //   const newHeight = calculateSizes(height) / scaleFactor;
+  //   console.table({ newWidth, newHeight });
+  //   if (newWidth >= MAX_SAFE_SIZE) {
+  //     canvas.width = MAX_SAFE_SIZE;
+  //   } else if (newHeight >= MAX_SAFE_SIZE) {
+  //     canvas.height = MAX_SAFE_SIZE;
+  //   } else {
+  //     canvas.width = newWidth;
+  //     canvas.height = newHeight;
+  //   }
+  // };
+
   const changeSize = (canvas, width, height, scaleFactor) => {
     const MAX_SAFE_SIZE = 4096;
     const MIN_SIZE = 250;
@@ -363,9 +368,10 @@
     const { width, height } = message.data.pluginMessage;
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
-
-    document.querySelector("#submit").addEventListener("click", async (e) => {
+    console.table({ width, height });
+    submitBtn.addEventListener("click", async (e) => {
       e.preventDefault();
+
       changeSize(canvas, width, height, scaleFactorValue);
       const imageData = setImageData(canvas.width, canvas.height, ctx, blockSize);
 
