@@ -17,11 +17,3 @@
 Questions and suggestions in <a href="https://www.linkedin.com/in/borschevsky">linkedIn</a>
 
 <img src="./shumiImg/shumiPeview.png" alt="preview">
-
-Features:
-Easy customization.
-Generate noise textures with customizable parameters.
-Control the color, amount, opacity, scale factor and blend mode.
-Apply noise texture to selected elements.
-Texture mapping on geometric shapes and also on vector and text is supported.
-The texture is grouped with the element for easy further editing.
