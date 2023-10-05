@@ -69,9 +69,36 @@
     </select>
   </div>
   <input id="submit" class="outline" type="submit" value="apply" />
+  <span class="loader"></span>
 </form>
 
 <style>
+  .loader {
+    display: none;
+    position: relative;
+    top: 8px;
+    left: 50px;
+    width: 25px;
+    height: 25px;
+    border: 3px solid var(--main_color);
+    border-bottom-color: var(--secondary);
+    border-radius: 50%;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+  }
+  .loader.loaded {
+    display: inline-block;
+  }
+
+  @keyframes rotation {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
   :root {
     --main_color: #ffffffb3;
     --secondary: #ffffff;
@@ -136,12 +163,13 @@
     font-size: 14px;
     text-transform: capitalize;
   }
-  #form > div:hover *,
+  #form > div:hover *:not(span),
   input[type="submit"]:hover {
     color: var(--secondary);
     border-color: var(--secondary);
     transition: all 0.2s linear;
   }
+
   #form > *:not(:last-child) {
     display: flex;
     justify-content: space-between;
@@ -359,42 +387,56 @@
     console.table({ cw: canvas.width, ch: canvas.height, newSize, scaleFactor });
   };
 
+  const loader = document.querySelector(".loader");
+  const toggleLoader = () => {
+    loader.classList.toggle("loaded");
+  };
+
   onmessage = async (message) => {
     const { width, height } = message.data.pluginMessage;
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
-
-    document.querySelector("#submit").addEventListener("click", async (e) => {
+    const submitBtn = document.querySelector("#submit");
+    submitBtn.addEventListener("click", async (e) => {
       e.preventDefault();
-      changeSize(canvas, width, height, scaleFactorValue);
-      const imageData = setImageData(canvas.width, canvas.height, ctx, blockSize);
 
-      const pngBlob = await new Promise((resolve) => {
-        ctx.putImageData(imageData, 0, 0);
-        canvas.toBlob((blob) => {
-          resolve(blob);
-        }, "image/png");
-      });
+      toggleLoader();
 
-      const pngBytes = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          resolve(new Uint8Array(reader.result));
-        };
-        reader.onerror = (error) => {
-          reject(new Error(`FileReader error: ${reader.error.name} - ${reader.error.message}`));
-        };
-        reader.readAsArrayBuffer(pngBlob);
-      });
-      window.parent.postMessage(
-        {
-          pluginMessage: {
-            pngBytes,
-            mixBlendMode: mixBlendMode.value,
+      let imageData;
+      setTimeout(() => {
+        changeSize(canvas, width, height, scaleFactorValue);
+        imageData = setImageData(canvas.width, canvas.height, ctx, blockSize);
+      }, 10);
+
+      setTimeout(async () => {
+        const pngBlob = await new Promise((resolve) => {
+          ctx.putImageData(imageData, 0, 0);
+          canvas.toBlob((blob) => {
+            resolve(blob);
+          }, "image/png");
+        });
+
+        const pngBytes = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            resolve(new Uint8Array(reader.result));
+          };
+          reader.onerror = (error) => {
+            reject(new Error(`FileReader error: ${reader.error.name} - ${reader.error.message}`));
+          };
+          reader.readAsArrayBuffer(pngBlob);
+        });
+        window.parent.postMessage(
+          {
+            pluginMessage: {
+              pngBytes,
+              mixBlendMode: mixBlendMode.value,
+            },
           },
-        },
-        "*"
-      );
+          "*"
+        );
+        toggleLoader();
+      }, 20);
     });
   };
 </script>
