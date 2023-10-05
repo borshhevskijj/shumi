@@ -7,10 +7,32 @@ figma.notify('Select the element to apply the noise effect to')
 figma.closePlugin()
 }
 
-const MAX_SAFE_SIZE = 4096
+
+
+const MAX_SAFE_SIZE = 4000
 const isValidImageSize=(width:number,height:number)=> {
 return width <= MAX_SAFE_SIZE && height <= MAX_SAFE_SIZE;
 }
+
+
+function getParts(size:number) {
+  const numChunks = Math.ceil(size / MAX_SAFE_SIZE);
+  
+  // Рассчитываем размер каждой части
+  const chunkHeight = Math.floor(size / numChunks);
+  
+  // Создаем массив для хранения размеров частей
+  const chunks = Array(numChunks).fill(chunkHeight);
+  console.log({numChunks,chunkHeight,chunks});
+  return {height:chunkHeight,chunks}
+}
+
+// console.log(getParts(12000),3);
+// console.log(getParts(8000),2);
+// console.log(getParts(4000),1);
+// console.log(getParts(12345));
+
+
 
 
 const createNodeOfType = (node:SceneNode) => {
@@ -47,8 +69,10 @@ createdNode.resize(width, height);
 return createdNode;
 };
 
+
   for(const node of nodes){
     const {width,height} = node
+
     figma.ui.postMessage({width,height}) 
   }
 

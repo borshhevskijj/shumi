@@ -364,6 +364,7 @@
 
     const size = average > MIN_SIZE ? average : MIN_SIZE;
     const newSize = size / scaleFactor;
+
     if (newSize > MAX_SAFE_SIZE) {
       canvas.width = MAX_SAFE_SIZE;
       canvas.height = MAX_SAFE_SIZE;
@@ -371,9 +372,11 @@
       canvas.width = newSize;
       canvas.height = newSize;
     }
+    console.log(newSize, canvas.width, canvas.height, scaleFactor);
   };
 
   const loader = document.querySelector(".loader");
+
   const toggleLoader = () => {
     loader.classList.toggle("loaded");
   };
@@ -391,6 +394,7 @@
       let imageData;
       setTimeout(() => {
         changeSize(canvas, width, height, scaleFactorValue);
+        console.log(canvas, width, height, scaleFactorValue);
         imageData = setImageData(canvas.width, canvas.height, ctx, blockSize);
       }, 10);
 
