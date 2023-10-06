@@ -372,7 +372,7 @@
       canvas.width = newSize;
       canvas.height = newSize;
     }
-    console.log(newSize, canvas.width, canvas.height, scaleFactor);
+    // console.table({ newSize, canvasW: canvas.width, canvasH: canvas.height, scaleFactor });
   };
 
   const loader = document.querySelector(".loader");
@@ -385,7 +385,7 @@
     const { width, height } = message.data.pluginMessage;
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
-
+    // console.table({ width, height });
     submitBtn.addEventListener("click", async (e) => {
       e.preventDefault();
 
@@ -394,7 +394,6 @@
       let imageData;
       setTimeout(() => {
         changeSize(canvas, width, height, scaleFactorValue);
-        console.log(canvas, width, height, scaleFactorValue);
         imageData = setImageData(canvas.width, canvas.height, ctx, blockSize);
       }, 10);
 
