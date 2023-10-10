@@ -65,21 +65,21 @@ type sizes = {
     const {width,height} = node
     const {chunkWidthAmount,chunkHeightAmount} = splitBlockIntoChunks(width,height)
     let sizes:sizes ={
-      width:null,
-      height:null
+      width:15000,
+      height:15000
     }
-    if (width <= chunkSize) {
-      sizes.width = width
-    }
-    else{
-      sizes.width = chunkSize
-    }
-     if(height <=chunkSize){
-      sizes.height = height
-    }
-    else{
-       sizes.height = chunkSize
-     }
+    // if (width <= chunkSize) {
+    //   sizes.width = width
+    // }
+    // else{
+    //   sizes.width = chunkSize
+    // }
+    //  if(height <=chunkSize){
+    //   sizes.height = height
+    // }
+    // else{
+    //    sizes.height = chunkSize
+    //  }
     //  console.log(sizes,'sizes');
      
     figma.ui.postMessage(sizes) 
@@ -99,23 +99,20 @@ const {pngBytes,mixBlendMode}= message
         
         const image= figma.createImage(pngBytes)
         const element = createNodeOfType(node)
+        element.resize(15000,15000)
         element.fills = [
           {
             type: 'IMAGE',
             imageHash: image.hash,
-            scaleMode: 'FILL',
+            scaleMode: 'TILE',
+            scalingFactor: 0.5,
             blendMode:mixBlendMode,
           }
         ]
         // __
+        
         const parent = node.parent || figma.currentPage
-        
-        const chunks =[node]
-        
-        // let posX = node.x
-        // let posY = node.y
-        // const bottomPos = node.y + node.height - chunkSize
-        element.resize(chunkSize,chunkSize)
+        const chunks =[]
 
 
 
@@ -139,59 +136,81 @@ const {pngBytes,mixBlendMode}= message
         //   }
         // }
 
-        let posX = node.x
-        let posY = node.y
-        const nodeBottomYpos = node.y + node.height - chunkSize
-        const nodeBottomXpos = node.x + node.width - chunkSize
-        console.log({nodeBottomYpos,nodeBottomXpos});
-        
-        // const qwe = (nodeY:number,nodeX:number,currentPosX:number,currentPosY:number)=>{
-        //   let isBiggerCurrentPosX:boolean
-        //   let isBiggerCurrentPosY:boolean
-          
-        //   if (nodeX<0 && currentPosX <= nodeX) {
-        //     isBiggerCurrentPosX= true
-        //   }
-        //   else {
-        //     isBiggerCurrentPosX= false
-        //   }
 
-        //   if (nodeY<0) {
-             
+        // const tempRect = figma.createRectangle()
+        // tempRect.name = 'tempRect'
+        // tempRect.resize(width,height)  
+
+        // let posX = tempRect.x
+        // let posY = tempRect.y
+        // let posX = node.x
+        // let posY = node.y
+
+        // const nodeBottomYpos = node.y + node.height - chunkSize
+        // const nodeBottomXpos = node.x + node.width - chunkSize
+
+        // const randomRotation =()=>{ // for relativeTransform prop
+        //   const randomNumber = Math.random() * 100
+        //   if (randomNumber <=33) {
+        //     return  [[0, -1, 0],[1, 0, 0]]
         //   }
-        //   else if (nodeY >=0) {
+        //   if (randomNumber <=66 && randomNumber >33) {
+        //     return [[-1, 0, 0],[0, -1, 0]]
         //   }
-        //   // return {isBiggerPosX,isBiggerPosY}
+        //     return [[1, 0, 0],[0, 1, 0]]
         // }
+        
+        // let heightCounter =0
+        // for (let chunkCount = 0; chunkCount <= chunkWidthAmount; chunkCount++) {
+        //   if (chunkCount === chunkWidthAmount) {
+        //     chunkCount=0
+        //     posX = node.x
+        //     posY+=chunkSize
+        //     heightCounter++
+        //   }
+        //   if (heightCounter === chunkHeightAmount) {
+        //       break
+        //   }
 
-        let heightCounter =0
-        for (let chunkCount = 0; chunkCount <= chunkWidthAmount; chunkCount++) {
-          if (chunkCount === chunkWidthAmount) {
-            chunkCount=0
-            posX = node.x
-            posY+=chunkSize
-            heightCounter++
-          }
-          if (heightCounter === chunkHeightAmount) {
-              break
-          }
-          const elementClone = element.clone()
-          elementClone.x = posX
-          elementClone.y = posY
-          chunks.push(elementClone)
-          posX += chunkSize
-
-        }
+        //   const elementClone = element.clone()
+        //   elementClone.x = posX
+        //   elementClone.y = posY
+        //   chunks.push(elementClone)
+        //   posX += chunkSize
+        // }
      
 
-        // __
 
-    // element.resize(width,height)
+        // -------------    
+        // const tempGroup = figma.group([tempRect,...chunks], figma.currentPage)
+        // tempGroup.name = 'tempRectGroup'
     
-    // const parent = node.parent || figma.currentPage
+        // const slice = figma.createSlice()
+        // slice.x = tempRect.x
+        // slice.y = tempRect.y
+        // slice.resize(width,height)
+
+        // const sliceBytes = await slice.exportAsync()
+        // const noiseImg = figma.createImage(sliceBytes) 
+        // const tempRect2 = figma.createRectangle()
+
+        // tempRect2.fills =[{
+        //   type: 'IMAGE',
+        //   imageHash: noiseImg.hash,
+        //   scaleMode: 'TILE',
+        //   // scalingFactor:1
+        // }]
+        // tempRect.remove()
+        // slice.remove()
+        // tempGroup.remove()
+        
+        // const group = figma.group([node,tempRect2], parent)
+    // -------------
+
     // parent.appendChild(element)
-  
-    const group = figma.group(chunks, parent)
+   
+    const group = figma.group([node,element], parent)
+    
     group.name = `${node.name}_${element.name}`
     
   }
