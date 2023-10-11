@@ -59,11 +59,6 @@
 </form>
 
 <style>
-  /* .loader {
-    opacity: 0;
-    transition: 0.2s all linear;
-  } */
-
   .loader {
     display: none;
     position: relative;
@@ -229,7 +224,7 @@
   function updateOpacity() {
     const imageOpacityValue = imageOpacity.value;
     opacityValue = imageOpacityValue;
-    setImageDataData(idata, rgbColor, scaleFactorValue, blockSize);
+    setImageDataData(idata, rgbColor, blockSize);
     ctx.putImageData(idata, 0, 0);
   }
 
@@ -250,7 +245,7 @@
 
     colorInput.value = choosenColor.value;
 
-    setImageDataData(idata, rgbColor, scaleFactorValue, blockSize);
+    setImageDataData(idata, rgbColor, blockSize);
     ctx.putImageData(idata, 0, 0);
   }
 
@@ -258,7 +253,7 @@
     const changedNoiseAmountValue = noiseAmount.value;
     noiseAmountValue = changedNoiseAmountValue;
 
-    setImageDataData(idata, rgbColor, scaleFactorValue, blockSize);
+    setImageDataData(idata, rgbColor, blockSize);
     ctx.putImageData(idata, 0, 0);
   }
 
@@ -279,7 +274,8 @@
       width: BASE_CANVAS_WIDTH / newSFvalue,
       height: BASE_CANVAS_HEIGHT / newSFvalue,
     };
-
+    console.clear();
+    console.log(newSFvalue, "newSFvalue");
     if (newSFvalue < 1) {
       blockSize = 1;
       canvas.width = tempCanvasSize.width;
@@ -324,11 +320,10 @@
 
   function setImageData(w, h, ctx, blockSize) {
     const imageData = ctx.createImageData(w, h);
-    setImageDataData(imageData, rgbColor, scaleFactorValue, blockSize);
+    setImageDataData(imageData, rgbColor, blockSize);
     return imageData;
   }
-
-  function setImageDataData(imageData, colors, scaleFactor, blockSize) {
+  function setImageDataData(imageData, colors, blockSize) {
     const { red, green, blue } = colors;
     const CHANNELS = 4; // [R,G,B,A..]
 
@@ -357,23 +352,22 @@
     }
   }
 
-  const changeSize = (canvas, width, height, scaleFactor) => {
-    const MAX_SAFE_SIZE = 4096;
-    const MIN_SIZE = 250;
-    const average = width + height / 2;
+  const limitCanvasSize = (canvas, width, height) => {
+    const OPTIMAL_SIZE = 1600;
 
-    const size = average > MIN_SIZE ? average : MIN_SIZE;
-    const newSize = size / scaleFactor;
-    if (newSize > MAX_SAFE_SIZE) {
-      canvas.width = MAX_SAFE_SIZE;
-      canvas.height = MAX_SAFE_SIZE;
+    if (width < OPTIMAL_SIZE) {
+      canvas.width = width;
     } else {
-      canvas.width = newSize;
-      canvas.height = newSize;
+      canvas.width = OPTIMAL_SIZE;
+    }
+    if (height < OPTIMAL_SIZE) {
+      canvas.height = height;
+    } else {
+      canvas.height = OPTIMAL_SIZE;
     }
   };
 
-  const loader = document.querySelector(".loader");
+  const loader = form.querySelector(".loader");
   const toggleLoader = () => {
     loader.classList.toggle("loaded");
   };
@@ -390,7 +384,8 @@
 
       let imageData;
       setTimeout(() => {
-        changeSize(canvas, width, height, scaleFactorValue);
+        limitCanvasSize(canvas, width, height, scaleFactorValue);
+        const blockSize = 1; // send 1, noise pixel size is changed in code.ts
         imageData = setImageData(canvas.width, canvas.height, ctx, blockSize);
       }, 10);
 
@@ -417,6 +412,7 @@
             pluginMessage: {
               pngBytes,
               mixBlendMode: mixBlendMode.value,
+              scaleFactor: scaleFactorValue,
             },
           },
           "*"

@@ -7,11 +7,6 @@ figma.notify('Select the element to apply the noise effect to')
 figma.closePlugin()
 }
 
-const MAX_SAFE_SIZE = 4096
-const isValidImageSize=(width:number,height:number)=> {
-return width <= MAX_SAFE_SIZE && height <= MAX_SAFE_SIZE;
-}
-
 
 const createNodeOfType = (node:SceneNode) => {
 const {width,height,x,y,type} = node
@@ -53,25 +48,24 @@ return createdNode;
   }
 
 figma.ui.onmessage = async (message) => {
-const {pngBytes,mixBlendMode}= message
+const {pngBytes,mixBlendMode,scaleFactor}= message
     try {
       for(const node of nodes){
         const {width,height} = node
-        if (!isValidImageSize(width,height)) {
-          figma.notify(`For better performance, try to keep element size under ${MAX_SAFE_SIZE}px`)
-        }
         const image= figma.createImage(pngBytes)
 
         const element = createNodeOfType(node)
-
+        
         element.fills = [
           {
             type: 'IMAGE',
             imageHash: image.hash,
-            scaleMode: 'FILL',
+            scaleMode: 'TILE',
+            scalingFactor: scaleFactor,
             blendMode:mixBlendMode,
           }
         ]
+        
     element.resize(width,height)
     
     const parent = node.parent || figma.currentPage
