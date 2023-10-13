@@ -17,3 +17,5 @@
 Questions and suggestions in <a href="https://www.linkedin.com/in/borschevsky">linkedIn</a>
 
 <img src="./shumiImg/shumiPeview.png" alt="preview">
+
+This project is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License - see the LICENSE file for details.

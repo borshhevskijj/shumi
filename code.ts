@@ -1,3 +1,6 @@
+// Copyright 2023 Egor Borschevsky
+// Licensed under CC BY-NC-ND 4.0 
+
 figma.showUI(__html__,{width:300,height:450})
 
 const nodes = figma.currentPage.selection;
@@ -55,14 +58,14 @@ const {pngBytes,mixBlendMode,scaleFactor}= message
         const image= figma.createImage(pngBytes)
 
         const element = createNodeOfType(node)
-        
+
         element.fills = [
           {
             type: 'IMAGE',
             imageHash: image.hash,
             scaleMode: 'TILE',
             scalingFactor: scaleFactor,
-            blendMode:mixBlendMode,
+            blendMode: mixBlendMode,
           }
         ]
         
